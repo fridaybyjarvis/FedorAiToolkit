@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/server/prisma';
 import { isMac } from '@/helpers/basic';
-
-const prisma = new PrismaClient();
+import { cached } from '@/server/apiCache';
 
 const clone = (obj: any) => JSON.parse(JSON.stringify(obj));
 
@@ -155,6 +154,17 @@ export async function GET(request: Request) {
     }
     if (only_active === 'true') {
       where.status = { in: ['running', 'queued', 'stopping'] };
+      const jobs = await cached(
+        'jobs-active',
+        () =>
+          prisma.job.findMany({
+            where,
+            orderBy: { created_at: 'desc' },
+          }),
+        5000,
+        { job_type },
+      );
+      return NextResponse.json({ jobs: jobs });
     }
 
     const jobs = await prisma.job.findMany({
@@ -177,16 +187,16 @@ export async function POST(request: Request) {
     syncDraftStages(job_config);
 
     if (isMac()) {
-      gpu_ids = "mps";
+      gpu_ids = 'mps';
     }
 
     const extra: any = {};
-    if ("job_ref" in body) {
-      extra["job_ref"] = body.job_ref;
+    if ('job_ref' in body) {
+      extra['job_ref'] = body.job_ref;
     }
 
-    if ("job_type" in body) {
-      extra["job_type"] = body.job_type;
+    if ('job_type' in body) {
+      extra['job_type'] = body.job_type;
     }
 
     if (id) {
