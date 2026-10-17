@@ -23,6 +23,8 @@ from .iris3b import Iris3BModel
 from .boogu_image import BooguImageModel, BooguImageEditModel
 from .mageflow import MageFlowModel, MageFlowEditModel
 from .minimax_h3 import MinimaxH3Model, MinimaxH3Ref2VAModel, MinimaxH3FastModel
+from .flux3 import Flux3Model
+from .moss_image import MossImageModel
 
 AI_TOOLKIT_MODELS = [
     # put a list of models here
@@ -65,4 +67,6 @@ AI_TOOLKIT_MODELS = [
     MinimaxH3Model,
     MinimaxH3Ref2VAModel,
     MinimaxH3FastModel,
+    Flux3Model,
+    MossImageModel,
 ]
